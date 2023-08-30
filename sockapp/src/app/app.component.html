@@ -1,0 +1,72 @@
+<ng-container *ngIf="data$ | async as data">
+<div *ngIf="allUsers | async as users">
+  <div class="d-flex flex-column">
+    <div class="btn btn-success col-3 m-1 align-content-start" *ngFor="let usr of users" >{{ usr.firstName }}</div>
+  </div>
+
+  <div class="dropdown">
+    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      Dropdown link
+    </a>
+
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="#">Action</a></li>
+      <li><a class="dropdown-item" href="#">Another action</a></li>
+      <li><a class="dropdown-item" href="#">Something else here</a></li>
+    </ul>
+  </div>
+</div>
+
+<div id="username-page" [ngClass]="{ 'hidden': isConnecting | async }">
+    <div class="username-page-container">
+        <h1 class="title">Type your username to enter the Chatroom</h1>
+        <div id="usernameForm" name="usernameForm">
+            <div class="form-group">
+                <!-- <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" /> -->
+                <input type="text"
+                class="form-control"
+                placeholder="Please insert you phone number"
+                id="user-name"
+                value=""
+                (change)="handlePhone($event)">
+              <input type="text"
+                     class="form-control"
+                     placeholder="Enter your full name !"
+                     id="user-name"
+                     (change)="handleUsername($event)">
+            </div>
+            <div class="form-group">
+                <button type="button" class="accent username-submit" (click)="registerUser()">Start Chatting</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="chat-page"  [ngClass]="{ 'hidden': !(isConnecting | async) }">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Public Chat</h2>
+        </div>
+        <div class="connecting" [ngClass]="{ 'hidden': isConnecting | async}">
+            Connecting...
+        </div>
+        <ul id="messageArea">
+          <li *ngFor="let poruka of data.messages" class="chat-message">
+            <div class="chmsg-container">
+            <i class="bg-info ">{{poruka.sender.firstName[0]}}</i>
+            <span>{{poruka.sender.firstName}}</span>
+            <p class="">{{ poruka.content }}</p>
+            </div>
+          </li>
+        </ul>
+        <div id="messageForm" name="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input type="text" id="message" placeholder="Type a message..." autocomplete="off" class="form-control" (keyup.enter)="sendPublicMessage()" (change)="handleChatMessage($event)"/>
+                    <button type="button" class="primary" (click)="sendPublicMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</ng-container>
