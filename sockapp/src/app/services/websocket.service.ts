@@ -89,6 +89,23 @@ export class WebsocketService {
 
     if(this.stompClient) {
       this.stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMeesage));
+    }
+
+  }
+
+  sendPrivateMessgae(msg: string, reciever: User) {
+    let chatMeesage = {
+      sender: {
+        id: 4,
+        phoneNumber: 2345355,
+        firstName: 'Mikica',
+        lastName: 'Springel'
+      },
+      content: msg,
+      type: 'CHAT'
+    }
+
+    if(this.stompClient) {
       this.stompClient.send("/app/private", {}, JSON.stringify(chatMeesage));
     }
 

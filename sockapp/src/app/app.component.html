@@ -1,7 +1,7 @@
 <ng-container *ngIf="data$ | async as data">
 <div *ngIf="allUsers | async as users">
   <div class="d-flex flex-column">
-    <div class="btn btn-success col-3 m-1 align-content-start" *ngFor="let usr of users" >{{ usr.firstName }}</div>
+    <div class="btn btn-success col-3 m-1 align-content-start" *ngFor="let usr of users" (click)="chatWith(usr.id)" >{{ usr.firstName }}</div>
   </div>
 
   <div class="dropdown">

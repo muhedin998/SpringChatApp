@@ -1,8 +1,11 @@
 package com.alibou.websocket.services.Impl;
 
+import com.alibou.websocket.models.AppUser;
 import com.alibou.websocket.models.ChatMessage;
+import com.alibou.websocket.repositories.MessageRepository;
 import com.alibou.websocket.services.ChatMessageService;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,14 +14,17 @@ import java.util.List;
 @Transactional
 public class ChatMessageImpl implements ChatMessageService {
 
+    @Autowired
+    private MessageRepository messageRepository;
+
     @Override
-    public ChatMessage createChat(ChatMessage user) {
-        return null;
+    public ChatMessage createChat(ChatMessage msg) {
+        return messageRepository.save(msg);
     }
 
     @Override
-    public List<ChatMessage> getMessagesByReciever(String phoneNumber) {
-        return null;
+    public List<ChatMessage> getPrivateMessages(AppUser sender, AppUser reciever) {
+        return messageRepository.findBySenderAndReceiver(sender, reciever);
     }
 
     @Override

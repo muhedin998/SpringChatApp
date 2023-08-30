@@ -8,7 +8,7 @@ import java.util.List;
 public interface ChatMessageService {
     ChatMessage createChat(ChatMessage user);
 
-    List<ChatMessage> getMessagesByReciever(String phoneNumber);
+    List<ChatMessage> getPrivateMessages(AppUser sender, AppUser reciever);
 
     ChatMessage deleteMessage(ChatMessage user);
 

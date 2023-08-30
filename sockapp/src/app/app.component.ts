@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { WebsocketService } from './services/websocket.service';
 import {User} from "./models/user";
-import {Observable} from "rxjs";
+import {filter, find, Observable, take, tap} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -36,8 +36,17 @@ export class AppComponent {
   }
   handleChatMessage (event: any) {
     this.msg = event.target.value;
-
   }
+
+  chatWith(usrId?: number) {
+    let user: User;
+    this.allUsers?.pipe(
+      tap(users => {
+        user = users.filter(u => u.id === usrId)[0]
+      })
+    ).subscribe( i => console.log(user))
+  }
+
   sendPublicMessage() {
     if(this.msg != ''){
       this.webSocketService.sendPublicMessage(this.msg);
