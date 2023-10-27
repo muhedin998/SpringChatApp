@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { WebsocketService } from './services/websocket.service';
 import {User} from "./models/user";
-import {filter, find, Observable, take, tap} from "rxjs";
+import {filter, find, map, Observable, of, take, tap, withLatestFrom} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -13,6 +13,7 @@ export class AppComponent {
   data$  = this.webSocketService.data;
   msg:string = ''
   user?: User;
+  chatWithUser?: Observable<User>;
   allUsers?: Observable<User[]> = this.webSocketService.allUsers;
   isConnecting = this.webSocketService.isConnecting;
 
@@ -23,6 +24,7 @@ export class AppComponent {
   ngOnInit() {
     this.data$.subscribe(d => console.log(d))
     this.allUsers?.subscribe(data => console.log(data))
+    this.chatWithUser?.subscribe(data => console.log(data))
   }
 
   handleUsername(event:any){
@@ -39,12 +41,10 @@ export class AppComponent {
   }
 
   chatWith(usrId?: number) {
-    let user: User;
-    this.allUsers?.pipe(
-      tap(users => {
-        user = users.filter(u => u.id === usrId)[0]
-      })
-    ).subscribe( i => console.log(user))
+    this.chatWithUser =  this.allUsers?.pipe(
+      take(1),
+      map(users => users.filter(user => user.id === usrId)[0])
+    )
   }
 
   sendPublicMessage() {
@@ -53,4 +53,5 @@ export class AppComponent {
       this.msg = ''
     }
   }
+  sendPrivateMessage() {}
 }

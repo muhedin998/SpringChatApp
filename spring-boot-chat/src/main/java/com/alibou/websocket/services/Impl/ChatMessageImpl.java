@@ -34,6 +34,6 @@ public class ChatMessageImpl implements ChatMessageService {
 
     @Override
     public List<ChatMessage> getAllMessages() {
-        return null;
+        return messageRepository.findAll();
     }
 }

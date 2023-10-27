@@ -10,22 +10,34 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 @Controller
+@CrossOrigin("*")
 public class ChatController {
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @Autowired
     private ChatMessageService chatMessageService;
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        return chatMessage;
+        return chatMessageService.createChat(chatMessage);
+    }
+
+    @GetMapping("/topic/initial")
+    public List<ChatMessage> getInitialMessages () {
+        return chatMessageService.getAllMessages();
     }
 
     @MessageMapping("/chat.addUser")
@@ -44,11 +56,12 @@ public class ChatController {
     public ChatMessage handlePrivateMessage(@Payload ChatMessage message) {
         // Process private message and send it to recipient's private queue
         chatMessageService.createChat(message);
+        // messagingTemplate.convertAndSendToUser();
         return message;
     }
 
     @GetMapping("/private/messages")
-    public ResponseEntity<List<ChatMessage>> getPrivateMessages (@RequestBody ChatMessage participants) {
-        return ResponseEntity.ok(chatMessageService.getPrivateMessages(participants.getSender(), participants.getReceiver()));
+    public ResponseEntity<List<ChatMessage>> getPrivateMessages (@RequestBody ChatMessage message) {
+        return ResponseEntity.ok(chatMessageService.getPrivateMessages(message.getSender(), message.getReceiver()));
     }
 }

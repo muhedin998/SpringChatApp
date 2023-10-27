@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
-import { of, Observable, map, tap, take, concat, switchMap, BehaviorSubject} from 'rxjs';
+import {of, Observable, map, tap, take, concat, switchMap, BehaviorSubject, subscribeOn} from 'rxjs';
 import {UserService} from "./user.service";
 import {User} from "../models/user";
+import {HttpClient} from "@angular/common/http";
+import {ChatMessage} from "../models/chat-message";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +24,7 @@ export class WebsocketService {
     messages: this._message
   })
 
-  constructor(private userService: UserService) {
+  constructor(private userService: UserService, private http: HttpClient) {
     let user = JSON.parse(sessionStorage.getItem('user')!)
     if (user) {
       this.connect(user);
@@ -43,6 +45,9 @@ export class WebsocketService {
 
     onConected:any = () => {
       this.stompClient.subscribe('/topic/public', this.onPublicMessageRecieved);
+      // Subscribe to private chat topic
+      let recipientId = 'RecipientUserId'; // Replace with the recipient's user ID
+      this.stompClient.subscribe('/user/' + recipientId + '/queue/private',  this.onPrivateMessage);
 
       // Tell your username to the server
       this.stompClient.send("/app/chat.addUser",
@@ -50,6 +55,8 @@ export class WebsocketService {
           JSON.stringify({sender: this.username, type: 'JOIN'})
       )
       this.isConnecting.next(true);
+      this.http.get<ChatMessage[]>('http://localhost:8080/topic/initial')
+        .subscribe(data => data.forEach(msg => this._message.push(JSON.stringify(msg))))
    }
 
    setConnectedTrue(): void {
@@ -57,6 +64,10 @@ export class WebsocketService {
        take(1),
        map(data => data = {...data, connected: true})
      ).subscribe(d => console.log(d));
+   }
+
+   onPrivateMessage:any = (payload:any) => {
+     this._message.push(JSON.parse(payload.body));
    }
 
    onPublicMessageRecieved:any = (payload:any) => {
@@ -78,10 +89,10 @@ export class WebsocketService {
   sendPublicMessage(msg: string) {
     let chatMeesage = {
       sender: {
-        id: 1,
-        phoneNumber: this.username,
-        firstName: 'Muhedind',
-        lastName: 'Alic'
+        id: 2,
+        phoneNumber: '+381111111',
+        firstName: 'Jdean',
+        lastName: 'Himer'
       },
       content: msg,
       type: 'CHAT'
@@ -102,7 +113,8 @@ export class WebsocketService {
         lastName: 'Springel'
       },
       content: msg,
-      type: 'CHAT'
+      type: 'CHAT',
+      reciever: reciever
     }
 
     if(this.stompClient) {
